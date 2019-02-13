@@ -10,11 +10,20 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
 
+    var itemArray = ["work","drive","gas"]
+    ///user default for default database
+    let userDefault = UserDefaults.standard
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        if let items = userDefault.array(forKey: "todoListArray") as? [String]
+        {
+            itemArray = items
+        }
     }
-    var itemArray = ["work","drive","gas"]
+    
+    
+    
+    
     //table view data source methods
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
@@ -49,6 +58,7 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Add", style: .default) { (action) in
             //what will happen when button pressed
             self.itemArray.append(newItem.text!)
+            self.userDefault.set(self.itemArray, forKey: "todoListArray")
             self.tableView.reloadData()
         }
         alert.addAction(action)
