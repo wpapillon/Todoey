@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
 
@@ -17,7 +18,7 @@ class TodoListViewController: UITableViewController {
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     override func viewDidLoad() {
         super.viewDidLoad()
-//        loadItems()
+        loadItems()
     }
     
     //table view data source methods
@@ -26,7 +27,6 @@ class TodoListViewController: UITableViewController {
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
-       
         let item = itemArray[indexPath.row]
         cell.textLabel?.text = item.title
         cell.accessoryType = item.done ? .checkmark : .none
@@ -37,15 +37,13 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-//         saveItems()
+        saveItems()
         tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true)
     }
     //add item
     @IBAction func AddButtonPressed(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Add Item To the List", message: "", preferredStyle: .alert)
-        
-        
         var textField = UITextField()
         
         alert.addTextField { (newTextField) in
@@ -61,7 +59,6 @@ class TodoListViewController: UITableViewController {
             newItem.done = false
             newItem.title = textField.text!
             self.itemArray.append(newItem)
-           
             self.saveItems()
             self.tableView.reloadData()
             
@@ -79,16 +76,12 @@ class TodoListViewController: UITableViewController {
         }
         
     }
-//    func loadItems() {
-//       if let data = try? Data(contentsOf: dataFilePath!){
-//
-//        do{
-//
-//        }catch{
-//            print("error decoding, \(error)")
-//        }
-//        }
-//    }
-    
+    func loadItems() {
+                let request : NSFetchRequest<Item> = Item.fetchRequest()
+                do{
+                    try itemArray = context.fetch(request)
+                }catch{
+                    print("Error fetching context, \(error)");}
+        }
 }
 
