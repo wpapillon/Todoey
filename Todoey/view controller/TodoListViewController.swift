@@ -33,15 +33,14 @@ class TodoListViewController: UITableViewController {
         return cell
     }
    
-    //table view delegate methods
+    //MARK: - table view delegate methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         saveItems()
-        tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    //add item
+    //MARK: - add item
     @IBAction func AddButtonPressed(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Add Item To the List", message: "", preferredStyle: .alert)
         var textField = UITextField()
@@ -60,7 +59,7 @@ class TodoListViewController: UITableViewController {
             newItem.title = textField.text!
             self.itemArray.append(newItem)
             self.saveItems()
-            self.tableView.reloadData()
+            
             
         }
         
@@ -74,14 +73,38 @@ class TodoListViewController: UITableViewController {
         }catch{
             print("Error saving context, \(error)");
         }
+        tableView.reloadData()
         
     }
-    func loadItems() {
-                let request : NSFetchRequest<Item> = Item.fetchRequest()
+    func loadItems(with request:NSFetchRequest<Item>  = Item.fetchRequest()) {
                 do{
                     try itemArray = context.fetch(request)
                 }catch{
                     print("Error fetching context, \(error)");}
+                tableView.reloadData()
         }
+   
+    
 }
 
+// MARK: - search bar extension
+extension TodoListViewController:UISearchBarDelegate{
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+      
+        loadItems(with: request)
+    }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0{
+            loadItems()
+            
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+            
+        }
+    }
+}
