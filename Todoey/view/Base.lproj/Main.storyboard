@@ -39,7 +39,7 @@
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="gja-Qo-n2S">
                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
-                                <action selector="addButtonPress:" destination="pEL-H9-Gvm" id="mny-ef-6U0"/>
+                                <action selector="addButtonPressed:" destination="pEL-H9-Gvm" id="Pkg-GS-YlM"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

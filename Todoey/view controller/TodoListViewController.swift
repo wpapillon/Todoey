@@ -13,12 +13,15 @@ class TodoListViewController: UITableViewController {
 
     //data source
     var itemArray = [Item]()
-    //data persis by creating our own plist instead of using the user default
+    var selectedCategory:Category?{
+        didSet{
+            loadItems()
+        }
+    }
  
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadItems()
     }
     
     //table view data source methods
@@ -57,6 +60,7 @@ class TodoListViewController: UITableViewController {
             let newItem = Item(context: self.context)
             newItem.done = false
             newItem.title = textField.text!
+            newItem.parentCategory = self.selectedCategory
             self.itemArray.append(newItem)
             self.saveItems()
             
@@ -76,7 +80,17 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()
         
     }
-    func loadItems(with request:NSFetchRequest<Item>  = Item.fetchRequest()) {
+    func loadItems(with request:NSFetchRequest<Item>  = Item.fetchRequest(),with predicate : NSPredicate? = nil) {
+        let categoryPredicate = NSPredicate(format: "parentCategory.title MATCHES %@",   (selectedCategory?.title)!)
+        if let additionalPre = predicate{
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate,additionalPre])
+        }
+        else{
+            request.predicate = categoryPredicate
+        }
+        
+        
+        
                 do{
                     try itemArray = context.fetch(request)
                 }catch{
@@ -95,7 +109,8 @@ extension TodoListViewController:UISearchBarDelegate{
         request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
       
-        loadItems(with: request)
+        loadItems(with: request,with: request.predicate)
+    
     }
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchBar.text?.count == 0{
